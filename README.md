@@ -1,7 +1,8 @@
 # netnrf 响应式框架
 > 用于快速开发的响应式框架
 
-> 演示：<https://rf2.netnr.com>
+> 演示一：<https://rf2.netnr.com>  
+> 演示二：<https://free-rf.zme.ink>
 
 ### [更新日志](CHANGELOG.md)
 
@@ -11,7 +12,7 @@
 - 前端采用 jQuery + Bootstrap + EasyUI + AceAdmin + fontAwesome
 - 后端采用 .NET Core + EF + SQL（SQLServer、MySQL、PostgreSQL、SQLite）
     - 数据库脚本放置于 `wwwroot/scripts/`目录下
-    - 数据库转换使用的工具：http://www.szmesoft.com/DB2DB
+    - 数据库转换使用的工具：https://fishcodelib.com/DBMigration.htm
     - 全部采用 LINQ，跨数据库、避免SQL注入
 - Visual Studio 2019 运行项目
 
