@@ -63,13 +63,24 @@ function loadOSinfo() {
             htm.push('<td>磁盘</td>');
             htm.push('<td>');
             data.LogicalDisk.forEach(diskitem => {
-                p1 = (diskitem.FreeSpace / 1024 / 1024 / 1024).toFixed(0);
-                p2 = (diskitem.Size / 1024 / 1024 / 1024).toFixed(0);
-                p3 = ((p2 - p1) / p2 * 100).toFixed(0);
-                pp = '<div class="progress" style="margin:5px 0"><div class="progress-bar progress-bar-warning" aria-valuenow="' + p3 + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + p3 + '%;">' + p3 + '%</div></div>';
-                var dn = diskitem.Name || "";
-                dn = dn.length > 20 ? dn.substring(0, 20) + "..." : dn;
-                htm.push(pp + '<div>' + dn + ' &nbsp; ' + (p2 - p1) + ' / ' + p2 + ' GB</div>');
+                if (diskitem.Size > diskitem.FreeSpace && diskitem.Size >= 1024 * 1024) {
+                    var dw = 'MB';
+                    p1 = diskitem.Size - diskitem.FreeSpace;
+                    p2 = diskitem.Size / 1024 / 1024;
+                    p3 = (p1 / diskitem.Size * 100).toFixed(0);
+                    p1 = p1 / 1024 / 1024;
+
+                    if (diskitem.Size >= 1024 * 1024 * 1024) {
+                        p1 = p1 / 1024;
+                        p2 = p2 / 1024;
+                        dw = 'GB';
+                    }
+
+                    pp = '<div class="progress" style="margin:5px 0"><div class="progress-bar progress-bar-warning" aria-valuenow="' + p3 + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + p3 + '%;">' + p3 + '%</div></div>';
+                    var dn = diskitem.Name || "";
+                    dn = dn.length > 20 ? dn.substring(0, 20) + "..." : dn;
+                    htm.push(pp + '<div>' + dn + ' &nbsp; ' + p1.toFixed(0) + ' / ' + p2.toFixed(0) + ' ' + dw + '</div>');
+                }
             });
             htm.push('</td>');
             htm.push('</tr>');
