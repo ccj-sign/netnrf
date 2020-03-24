@@ -124,11 +124,6 @@
             var mt = $('#menu-toggler');
             mt.hasClass('display') && $('#menu-toggler')[0].click();
         }
-
-        //保持全屏
-        if (z && z.FullScreen) {
-            z.FullScreen.iframe(z.ifs || false);
-        }
     },
     //Iframe自适应、延迟响应
     IframeAuto: function () {
