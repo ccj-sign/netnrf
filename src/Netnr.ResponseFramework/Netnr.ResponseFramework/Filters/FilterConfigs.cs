@@ -142,29 +142,6 @@ namespace Netnr.ResponseFramework.Filters
                             LogGroup = 1
                         };
 
-                        try
-                        {
-                            var dbpath = GlobalTo.GetValue("logs:dbpath").Replace("~", GlobalTo.ContentRootPath);
-                            using var ds = new IP2Region.DbSearcher(dbpath);
-
-                            var ips = mo.LogIp.Split(',');
-                            var ipi = new List<string>();
-                            foreach (var ip in ips)
-                            {
-                                //内容格式：国家|区域|省份|市|运营商。无数据默认为0。
-                                var listIpInfo = ds.MemorySearch(ip.Trim().Replace("::1", "127.0.0.1")).Region.Split('|').ToList();
-                                listIpInfo.RemoveAt(1);
-                                listIpInfo = listIpInfo.Where(x => x != "0").Distinct().ToList();
-
-                                ipi.Add(string.Join(",", listIpInfo));
-                            }
-                            mo.LogCity = string.Join(";", ipi);
-                        }
-                        catch (Exception)
-                        {
-                            mo.LogCity = "fail";
-                        }
-
                         mo.LogContent = DicDescription[mo.LogAction.ToLower()];
 
                         #region 分批写入日志
@@ -193,18 +170,56 @@ namespace Netnr.ResponseFramework.Filters
 
                         if (cacheLogs?.Count > cacheLogCount || DateTime.Now.ToTimestamp() - cacheLogWrite.Value.ToTimestamp() > cacheLogTime)
                         {
-                            using (var db = new Data.ContextBase(Data.ContextBase.DCOB().Options))
+                            //异步写入日志
+                            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
                             {
+                                //写入日志前查询IP所属区域
+                                var dbpath = GlobalTo.GetValue("logs:dbpath").Replace("~", GlobalTo.ContentRootPath);
+                                using var ds = new IP2Region.DbSearcher(dbpath);
+
+                                foreach (var log in cacheLogs)
+                                {
+                                    try
+                                    {
+                                        var ips = log.LogIp.Split(',');
+                                        var ipi = new List<string>();
+
+                                        foreach (var ip in ips)
+                                        {
+                                            //内容格式：国家|区域|省份|市|运营商。无数据默认为0。
+                                            var listIpInfo = ds.MemorySearch(ip.Trim().Replace("::1", "127.0.0.1")).Region.Split('|').ToList();
+
+                                            listIpInfo.RemoveAt(1);
+                                            listIpInfo = listIpInfo.Where(x => x != "0").Distinct().ToList();
+
+                                            ipi.Add(string.Join(",", listIpInfo));
+                                        }
+
+                                        log.LogCity = string.Join(";", ipi);
+                                    }
+                                    catch (Exception)
+                                    {
+                                        log.LogCity = "fail";
+                                    }
+                                }
+
+                                using var db = new Data.ContextBase(Data.ContextBase.DCOB().Options);
                                 db.SysLog.AddRange(cacheLogs);
                                 db.SaveChanges();
-                            }
 
-                            cacheLogs = null;
-                            cacheLogWrite = DateTime.Now;
+                                //清空数据及更新时间
+                                cacheLogs = null;
+                                cacheLogWrite = DateTime.Now;
+
+                                Core.CacheTo.Set(cacheLogsKey, cacheLogs, 3600 * 24 * 30);
+                                Core.CacheTo.Set(cacheLogWriteKey, cacheLogWrite, 3600 * 24 * 30);
+                            });
                         }
-
-                        Core.CacheTo.Set(cacheLogsKey, cacheLogs, 3600 * 24 * 30);
-                        Core.CacheTo.Set(cacheLogWriteKey, cacheLogWrite, 3600 * 24 * 30);
+                        else
+                        {
+                            Core.CacheTo.Set(cacheLogsKey, cacheLogs, 3600 * 24 * 30);
+                            Core.CacheTo.Set(cacheLogWriteKey, cacheLogWrite, 3600 * 24 * 30);
+                        }
 
                         #endregion
                     }
