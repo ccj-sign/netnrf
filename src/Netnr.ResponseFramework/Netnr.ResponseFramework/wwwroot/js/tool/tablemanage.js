@@ -111,7 +111,7 @@ gd2.onComplete(function () {
     if (gd2.isGenerateCode) {
         codeGenerate.templateParam.PrimaryKey = null;
         $.each(gd2.data, function (i, row) {
-            if (row["主键"].indexOf("YES")>=0) {
+            if (row["主键"].indexOf("YES") >= 0) {
                 codeGenerate.templateParam = {
                     TableName: row["表名"],
                     TableTitle: row["表说明"] || row["表名"],
@@ -248,7 +248,7 @@ $('#btnSaveGenerateCode').click(function () {
     })
 });
 
-//显示时、窗口大小变动时，编辑器高度自适应
+//显示时、窗口大小变动、激活标签时，编辑器高度自适应
 $('#fv_modal_11').on("shown.bs.modal", function () {
     codeGenerate.editorAutoHeight();
 })

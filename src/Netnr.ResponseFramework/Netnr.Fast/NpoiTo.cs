@@ -75,7 +75,7 @@ namespace Netnr.Fast
                         IFont font = workbook.CreateFont();
                         font.FontHeightInPoints = 10;
                         font.Color = 8;
-                        font.Boldweight = 700;
+                        font.IsBold = true;
 
                         hStyle.SetFont(font);
 

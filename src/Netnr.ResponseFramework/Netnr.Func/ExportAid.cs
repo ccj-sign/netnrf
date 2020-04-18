@@ -440,11 +440,11 @@ namespace Netnr.Func
                     break;
                 case StyleType.headCenter:
                     font.FontHeightInPoints = 10;
-                    font.Boldweight = 700;
+                    font.IsBold = true;
                     break;
                 case StyleType.headLeft:
                     font.FontHeightInPoints = 10;
-                    font.Boldweight = 700;
+                    font.IsBold = true;
                     cellStyle.Alignment = HorizontalAlignment.Left;
                     break;
                 case StyleType.whiteGreen:
@@ -469,11 +469,11 @@ namespace Netnr.Func
                     cellStyle.FillPattern = FillPattern.SolidForeground;
                     break;
                 case StyleType.bold:
-                    font.Boldweight = 700;
+                    font.IsBold = true;
                     break;
                 case StyleType.headNoBorder:
                     font.FontHeightInPoints = 10;
-                    font.Boldweight = 700;
+                    font.IsBold = true;
                     break;
             }
 
